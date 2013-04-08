@@ -34,8 +34,6 @@ import java.text.Collator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Hex;
-
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.os.Parcel;
@@ -325,10 +323,23 @@ public class DatabaseUtils {
      */
     public static String getHexCollationKey(String name) {
         byte [] arr = getCollationKeyInBytes(name);
-        char[] keys = Hex.encodeHex(arr);
+        char[] keys = encodeHex(arr);
         return new String(keys, 0, getKeyLen(arr) * 2);
     }
 
+    private static final char[] DIGITS = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    public static char[] encodeHex(byte[] data) {
+        int len = data.length;
+        char[] out = new char[len << 1];
+        int j = 0;
+        for(int i = 0; i < len; ++i) {
+            out[j++] = DIGITS[(data[i] & 0xF0) >>> 4];
+            out[j++] = DIGITS[data[i] & 0xF];
+        }
+
+        return out;
+    }
+    
     private static int getKeyLen(byte[] arr) {
         if (arr[arr.length - 1] != 0) {
             return arr.length;
